@@ -125,19 +125,24 @@ La funzione deve restituire un array di oggetti Actress.
  
 Può essere anche un array vuoto. */
 
-async function getAllActresses(): Promise<object | null | (number | string)[]> {
+async function getAllActresses(): Promise<object | (number | string)[]> {
   try {
     const response = await fetch(
       `https://boolean-spec-frontend.vercel.app/freetestapi/actresses`
     );
-    const data = await response.json();
-    if (data) {
-      return data;
+    const data: unknown = await response.json();
+    if (!(data instanceof Array)) {
+      throw new Error(
+        "Errore nel recupero dei dati, formato oggetto non valido!"
+      );
     }
+
+    const actressesValid = data.filter(isActress);
+    return actressesValid;
   } catch (error) {
     console.error(error);
   }
-  return null;
+  return [];
 }
 
 (async () => {
